@@ -46,6 +46,7 @@ public class FxcalculatorApplication implements CommandLineRunner {
             base = StringUtils.trimWhitespace(input).substring(0, 3);
             term = StringUtils.trimWhitespace(input).substring(input.lastIndexOf(" ") + 1);
             baseAmount = captureAmount(input);
+            //TODO: validate base, term and baseAmount before passing.
             BigDecimal output = converterService.convert(base, term, baseAmount);
             System.out.println(base+" "+baseAmount+" "+"="+" "+term+" "+output);
         }

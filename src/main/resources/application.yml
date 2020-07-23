@@ -16,6 +16,7 @@ currency:
         NOK: 2
         NZD: 2
         USD: 2
+        AUD: 2
   rates:
     entries:
       map:
