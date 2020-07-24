@@ -4,20 +4,16 @@ import com.anz.fxcalculator.config.CurrencyDecimalFormatValues;
 import com.anz.fxcalculator.config.CurrencyRates;
 import com.anz.fxcalculator.util.Constants;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.poifs.filesystem.NPOIFSFileSystem;
-import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -57,12 +53,13 @@ public class ConverterService {
     }
 
     private String findConversionPattern(final String base, final String term) throws IOException, InvalidFormatException {
-        //TODO: Handle exceptions here only
         List<String> baseCurrencies = new ArrayList<>();
         List<String> termsCurrencies = new ArrayList<>();
         DataFormatter dataFormatter = new DataFormatter();
         String conversionPattern;
-        try (Workbook workbook = WorkbookFactory.create(ResourceUtils.getFile("classpath:matrix.xlsx"))) {
+        ClassPathResource matrixFile = new ClassPathResource("/matrix.xlsx");
+        InputStream inputStream = matrixFile.getInputStream();
+        try (Workbook workbook = WorkbookFactory.create(inputStream)) {
             Sheet sheet = workbook.getSheetAt(0);
             for (int i = 0; i <= sheet.getLastRowNum(); i++) {
                 baseCurrencies.add(StringUtils.trimAllWhitespace(dataFormatter.formatCellValue(sheet.getRow(i).getCell(0))));
@@ -71,6 +68,8 @@ public class ConverterService {
             int baseIndexInMatrix = baseCurrencies.indexOf(base);
             int termIndexInMatrix = termsCurrencies.indexOf(term);
             conversionPattern = StringUtils.trimAllWhitespace(dataFormatter.formatCellValue(sheet.getRow(baseIndexInMatrix).getCell(termIndexInMatrix)));
+        } finally {
+            inputStream.close();
         }
         return conversionPattern;
     }

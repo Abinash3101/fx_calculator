@@ -1,17 +1,15 @@
 package com.anz.fxcalculator;
 
+import com.anz.fxcalculator.Exception.InvalidInputException;
 import com.anz.fxcalculator.service.ConverterService;
 import com.anz.fxcalculator.util.FxUtility;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.math.BigDecimal;
 import java.util.Scanner;
 
@@ -19,8 +17,6 @@ import static com.anz.fxcalculator.util.Constants.SUPPORTED_CURRENCIES;
 
 @SpringBootApplication
 public class FxcalculatorApplication implements CommandLineRunner {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final ConverterService converterService;
 
@@ -33,7 +29,7 @@ public class FxcalculatorApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws IOException, InvalidFormatException {
+    public void run(String... args) {
         System.out.println("Currencies now supported: " + SUPPORTED_CURRENCIES);
         String base;
         String term;
@@ -46,10 +42,24 @@ public class FxcalculatorApplication implements CommandLineRunner {
             String input = scanner.nextLine();
             base = StringUtils.trimWhitespace(input).substring(0, 3);
             term = StringUtils.trimWhitespace(input).substring(input.lastIndexOf(" ") + 1);
-            baseAmount = FxUtility.captureAmount(input);
-            //TODO: validate base, term and baseAmount before passing.
-            BigDecimal output = converterService.convert(base, term, baseAmount);
-            System.out.println(base+" "+baseAmount+" "+"="+" "+term+" "+output);
+            try {
+                baseAmount = FxUtility.captureAmount(input);
+            } catch (InvalidInputException e) {
+                System.out.println(e.getMessage());
+                continue;
+            }
+            if(FxUtility.isValidCurrencyTerm(base) && FxUtility.isValidCurrencyTerm(term)) {
+                BigDecimal output = null;
+                try {
+                    output = converterService.convert(base, term, baseAmount);
+                } catch (IOException | InvalidFormatException e) {
+                    System.out.println("Internal Server error. please contact support..");
+                    System.exit(0);
+                }
+                System.out.println(base+" "+baseAmount+" "+"="+" "+term+" "+output);
+            } else {
+                System.out.println("Unable to find rate for"+" "+ base+"/"+term);
+            }
         }
     }
 

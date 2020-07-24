@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.anz</groupId>
     <artifactId>fxcalculator</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>fxcalculator</name>
     <description>console-based currency converter application</description>
 

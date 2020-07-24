@@ -2,6 +2,8 @@ package com.anz.fxcalculator.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FxUtilityTest {
@@ -29,5 +31,10 @@ public class FxUtilityTest {
         assertThat(FxUtility.isValidCurrencyTerm("ckeqjb")).isFalse();
         assertThat(FxUtility.isValidCurrencyTerm("KRW")).isFalse();
         assertThat(FxUtility.isValidCurrencyTerm(null)).isFalse();
+    }
+
+    @Test
+    public void shouldCaptureAmount() {
+        assertThat(FxUtility.captureAmount("AUD 348.00 in USD")).isEqualTo(new BigDecimal("348.00"));
     }
 }
