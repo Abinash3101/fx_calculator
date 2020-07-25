@@ -1,5 +1,7 @@
 package com.anz.fxcalculator.util;
 
+import com.anz.fxcalculator.Exception.InvalidInputException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -24,7 +26,7 @@ public class FxUtilityTest {
         assertThat(FxUtility.isValidCurrencyTerm("AUD")).isTrue();
         assertThat(FxUtility.isValidCurrencyTerm("CAD")).isTrue();
         assertThat(FxUtility.isValidCurrencyTerm("CNY")).isTrue();
-        assertThat(FxUtility.isValidCurrencyTerm("JPY")).isTrue();
+        assertThat(FxUtility.isValidCurrencyTerm("NZD")).isTrue();
         assertThat(FxUtility.isValidCurrencyTerm("GBP")).isTrue();
         assertThat(FxUtility.isValidCurrencyTerm("NZD")).isTrue();
         assertThat(FxUtility.isValidCurrencyTerm(" ")).isFalse();
@@ -36,5 +38,14 @@ public class FxUtilityTest {
     @Test
     public void shouldCaptureAmount() {
         assertThat(FxUtility.captureAmount("AUD 348.00 in USD")).isEqualTo(new BigDecimal("348.00"));
+        assertThat(FxUtility.captureAmount("NZD 348.00 in NZD")).isEqualTo(new BigDecimal("348.00"));
+        assertThat(FxUtility.captureAmount("GBP 348.45 in USD")).isEqualTo(new BigDecimal("348.45"));
+        assertThat(FxUtility.captureAmount("KEW 348.00 in USD")).isEqualTo(new BigDecimal("348.00"));
+        assertThat(FxUtility.captureAmount("AUD 348.00 in eff")).isEqualTo(new BigDecimal("348.00"));
+    }
+
+    @Test
+    public void shouldThroughInvalidInputException() {
+        Assertions.assertThrows(InvalidInputException.class, () -> FxUtility.captureAmount("KEW evveg in USD"));
     }
 }
